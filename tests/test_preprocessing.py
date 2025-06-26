@@ -1,72 +1,49 @@
+import pytest
 import pandas as pd
 import numpy as np
 from forest_fire_pred.preprocessing import DataPreprocessor
 
-def test_preprocess_single_input_shape():
-    # Create dummy train and test data
-    train = pd.DataFrame({
-        'Date': ['01-06-2012']*10,
-        'Temperature': np.random.rand(10)*30,
-        'RH': np.random.rand(10)*100,
-        'Ws': np.random.rand(10)*20,
-        'Rain': np.random.rand(10),
-        'FFMC': np.random.rand(10)*100,
-        'DMC': np.random.rand(10)*50,
-        'DC': np.random.rand(10)*300,
-        'ISI': np.random.rand(10)*10,
-        'BUI': np.random.rand(10)*40,
-        'Classes': np.random.randint(0, 2, 10)
-    })
-    test = train.copy()
-    preprocessor = DataPreprocessor(train, test)
-    X_train, X_test, y_train, y_test = preprocessor.preprocess_data()
-    # Prepare a single input row
-    single_row = pd.DataFrame({
-        'Temperature': [25],
-        'RH': [45],
-        'Ws': [10],
-        'Rain': [0],
-        'FFMC': [85],
-        'DMC': [20],
-        'DC': [200],
-        'ISI': [5],
-        'BUI': [30],
-        'Weekday/Weekend': [1]
-    })
-    X_single = preprocessor.preprocess_single_input(single_row)
-    # Should have same number of columns as X_train
-    assert X_single.shape[1] == X_train.shape[1]
-    assert X_single.shape[0] == 1
+@pytest.fixture
+def sample_df():
+    data = {
+        'Date': ['27/06/2025', '28/06/2025', '29/06/2025'],  # Fri, Sat, Sun
+        'Temperature': [25, 30, 22],
+        'RH': [23, 50, 34],
+        'Ws': [3, 1, 5],
+        'Rain': [0.0, 0.4, 0.0],
+        'FFMC': [85, 90, 78],
+        'DMC': [20, 25, 30],
+        'DC': [100, 43.4, 77.8],
+        'ISI': [5.0, 6.0, 7.0],
+        'BUI': [30.0, 35.0, 32.0],
+        'Classes': [0, 1, 0]
+    }
+    return pd.DataFrame(data)
 
-def test_preprocess_single_input_error():
-    # Should raise if preprocessor is not fitted
-    train = pd.DataFrame({
-        'Date': ['01-06-2012']*10,
-        'Temperature': np.random.rand(10)*30,
-        'RH': np.random.rand(10)*100,
-        'Ws': np.random.rand(10)*20,
-        'Rain': np.random.rand(10),
-        'FFMC': np.random.rand(10)*100,
-        'DMC': np.random.rand(10)*50,
-        'DC': np.random.rand(10)*300,
-        'ISI': np.random.rand(10)*10,
-        'BUI': np.random.rand(10)*40,
-        'Classes': np.random.randint(0, 2, 10)
-    })
-    test = train.copy()
-    preprocessor = DataPreprocessor(train, test)
-    single_row = pd.DataFrame({
-        'Temperature': [25],
-        'RH': [45],
-        'Ws': [10],
-        'Rain': [0],
-        'FFMC': [85],
-        'DMC': [20],
-        'DC': [200],
-        'ISI': [5],
-        'BUI': [30],
-        'Weekday/Weekend': [1]
-    })
-    import pytest
+def test_add_date_feature(sample_df):
+    preprocessor = DataPreprocessor()
+    result = preprocessor._add_date_features(sample_df.copy())
+    assert 'Weekday/Weekend' in result.columns
+    assert result['Weekday/Weekend'].tolist() == [1, 0, 0]  # Fri = 1, Sat/Sun = 0
+
+def test_preprocessing_fit(sample_df):
+    preprocessor = DataPreprocessor()
+    X, y = preprocessor.fit(sample_df)
+    assert isinstance(X, pd.DataFrame)
+    assert isinstance(y, pd.Series)
+    assert 'Weekday/Weekend' in X.columns
+    assert X.shape[0] == sample_df.shape[0]
+    assert y.equals(sample_df['Classes'])
+    assert '1' not in X.columns  # Bias term should be removed after poly
+    
+
+def test_transform(sample_df):
+    preprocessor = DataPreprocessor()
+    X_train, _ = preprocessor.fit(sample_df)
+    X_test = preprocessor.transform(sample_df)
+    assert list(X_train.columns) == list(X_test.columns)
+
+def test_transform_fail(sample_df):
+    preprocessor = DataPreprocessor()   # Poly and Scaler not initialized
     with pytest.raises(RuntimeError):
-        preprocessor.preprocess_single_input(single_row) 
+        preprocessor.transform(sample_df)
