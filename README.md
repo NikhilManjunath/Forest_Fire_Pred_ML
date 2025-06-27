@@ -1,6 +1,6 @@
 # Forest Fire Prediction using Machine Learning
 
-This repository contains a comprehensive machine learning pipeline for predicting forest fire occurrences based on meteorological data.
+This repository contains a machine learning pipeline for predicting forest fire occurrences based on meteorological data.
 
 ## Project Overview
 
