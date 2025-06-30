@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from forest_fire_pred.utils import PCA_func, seq_feat_selector
+from forest_fire_pred import PCA_func, seq_feat_selector
 import pytest
 
 @pytest.mark.parametrize("n_components", [1, 2, 5])

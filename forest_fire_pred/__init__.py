@@ -10,3 +10,4 @@ from .models import ModelTrainer, Experiments
 from .metrics import compute_metrics, build_confusion_matrix
 from .visualization import plot_confusion_matrix
 from . import utils
+from .utils import PCA_func, seq_feat_selector

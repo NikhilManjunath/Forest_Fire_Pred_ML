@@ -1,9 +1,10 @@
 import argparse
-from forest_fire_pred.data_loader import Dataloader
-from forest_fire_pred.preprocessing import DataPreprocessor
-from forest_fire_pred.models import Experiments
-from forest_fire_pred.visualization import plot_confusion_matrix
-from forest_fire_pred.metrics import compute_metrics
+from forest_fire_pred import Dataloader
+from forest_fire_pred import DataPreprocessor
+from forest_fire_pred import Experiments
+from forest_fire_pred import plot_confusion_matrix
+from forest_fire_pred import compute_metrics
+
 import joblib
 import os
 import logging

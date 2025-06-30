@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 import numpy as np
-from forest_fire_pred.preprocessing import DataPreprocessor
+from forest_fire_pred import DataPreprocessor
 
 @pytest.fixture
 def sample_df():

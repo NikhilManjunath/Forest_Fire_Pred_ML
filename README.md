@@ -28,7 +28,7 @@ Forest_Fire_Pred_ML/
 │   ├── visualization.py       # Plotting functions
 │   └── saved_models/          # Trained model artifacts
 ├── tests/                     # Unit tests
-├── main.py                    # Training pipeline entry point
+├── train.py                    # Training pipeline entry point
 ├── test.py                    # Testing and prediction entry point
 ├── requirements.txt           # Python dependencies
 └── README.md                  # This file
